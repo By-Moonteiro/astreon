@@ -3,9 +3,9 @@ import { IsOptional, IsString } from 'class-validator';
 export class GetExercisesFilterDTO {
   @IsString()
   @IsOptional()
-  name!: string;
+  name?: string;
 
   @IsString()
   @IsOptional()
-  muscleGroup!: string;
+  muscleGroup?: string;
 }
