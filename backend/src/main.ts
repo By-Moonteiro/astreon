@@ -14,7 +14,15 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter(),
+    new FastifyAdapter({
+      logger: {
+        level: process.env.NODE_ENV === 'production' ? 'warn' : 'info',
+        transport:
+          process.env.NODE_ENV !== 'production'
+            ? { target: 'pino-pretty' }
+            : undefined, // Em produção manda json puro pro render
+      },
+    }),
   );
 
   const configService = app.get(ConfigService);
