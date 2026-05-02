@@ -82,7 +82,7 @@ export const Workouts = () => {
           return (
             <button
               key={plan.id}
-              onClick={() => navigate(`/workout/${plan.id}`)}
+              onClick={() => navigate(`/workouts/${plan.id}`)}
               className="w-full bg-white/5 border border-white/8 rounded-2xl p-5 text-left transition-all duration-200 active:scale-[0.98] active:bg-white/8"
             >
               <div className="flex items-start justify-between mb-3">
