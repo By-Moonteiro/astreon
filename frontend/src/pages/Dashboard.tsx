@@ -1,5 +1,6 @@
 import { Calendar, ChevronRight, Dumbbell, Zap } from "lucide-react";
 import type { TrainingDay, WorkoutPlan } from "../schemas/workout";
+import { useNavigate } from "react-router-dom";
 
 const mockPlan: WorkoutPlan = {
   id: "1",
@@ -86,6 +87,8 @@ export const Dashboard = () => {
   const daysLeft = getDaysUntilExpiry(plan.endDate);
   const userEmail = "voce@email.com";
 
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-[#0d0d0f] px-4 pt-10 pb-6">
       {/* Header */}
@@ -119,7 +122,10 @@ export const Dashboard = () => {
           {nextDay.workoutSets.length} exercícios
         </p>
 
-        <button className="w-full bg-violet-600 hover:bg-violet-500 active:bg-violet-700 text-white font-semibold text-sm py-4 rounded-xl transition-all duration-200 flex items-center justify-center gap-2">
+        <button
+          onClick={() => navigate("/workouts/1")}
+          className="w-full bg-violet-600 hover:bg-violet-500 active:bg-violet-700 text-white font-semibold text-sm py-4 rounded-xl transition-all duration-200 flex items-center justify-center gap-2"
+        >
           Iniciar treino
           <ChevronRight size={16} />
         </button>
