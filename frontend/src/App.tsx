@@ -6,7 +6,6 @@ import { Dashboard } from "./pages/Dashboard";
 import { Workouts } from "./pages/Workouts";
 import { Profile } from "./pages/Profile";
 import { WorkoutDetail } from "./pages/WorkoutDetail";
-import { WorkoutSession } from "./pages/WorkoutSession";
 
 export const App = () => {
   return (
@@ -21,8 +20,6 @@ export const App = () => {
           <Route path="/workouts/:id" element={<WorkoutDetail />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
-
-        <Route path="/treino/:id" element={<WorkoutSession />} />
       </Routes>
     </BrowserRouter>
   );
