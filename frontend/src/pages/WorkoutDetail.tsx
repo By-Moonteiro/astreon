@@ -1,11 +1,6 @@
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Dumbbell, Play } from "lucide-react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "../components/ui/accordion";
+import { ArrowLeft, Dumbbell, Check, ChevronDown } from "lucide-react";
 import type { WorkoutPlan } from "../schemas/workout";
 
 const mockPlan: WorkoutPlan = {
@@ -23,6 +18,7 @@ const mockPlan: WorkoutPlan = {
         {
           id: "1",
           order: 1,
+          sets: 3,
           repetitions: 12,
           weight: 80,
           restTime: 60,
@@ -36,6 +32,7 @@ const mockPlan: WorkoutPlan = {
         {
           id: "2",
           order: 2,
+          sets: 3,
           repetitions: 10,
           weight: 40,
           restTime: 60,
@@ -49,9 +46,10 @@ const mockPlan: WorkoutPlan = {
         {
           id: "3",
           order: 3,
+          sets: 4,
           repetitions: 12,
           weight: 70,
-          restTime: 90,
+          restTime: 12,
           exercise: {
             id: "3",
             name: "Crucifixo",
@@ -69,6 +67,7 @@ const mockPlan: WorkoutPlan = {
         {
           id: "4",
           order: 1,
+          sets: 3,
           repetitions: 10,
           weight: 70,
           restTime: 90,
@@ -82,6 +81,7 @@ const mockPlan: WorkoutPlan = {
         {
           id: "5",
           order: 2,
+          sets: 3,
           repetitions: 12,
           weight: 20,
           restTime: 60,
@@ -102,6 +102,7 @@ const mockPlan: WorkoutPlan = {
         {
           id: "6",
           order: 1,
+          sets: 4,
           repetitions: 8,
           weight: 100,
           restTime: 120,
@@ -115,6 +116,7 @@ const mockPlan: WorkoutPlan = {
         {
           id: "7",
           order: 2,
+          sets: 3,
           repetitions: 12,
           weight: 60,
           restTime: 90,
@@ -128,6 +130,7 @@ const mockPlan: WorkoutPlan = {
         {
           id: "8",
           order: 3,
+          sets: 3,
           repetitions: 15,
           weight: 30,
           restTime: 60,
@@ -149,6 +152,48 @@ const statusConfig = {
   archived: { label: "Arquivada", classes: "bg-white/10 text-white/40" },
 };
 
+// RestBar só exibe — sem lógica de timer aqui
+function RestBar({
+  timeLeft,
+  restTime,
+}: {
+  timeLeft: number;
+  restTime: number;
+}) {
+  const isFinished = timeLeft <= 0;
+  const progress = Math.max(0, timeLeft / restTime);
+
+  return (
+    <div className="mt-3">
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-xs text-white/40 tracking-widest uppercase">
+          {isFinished ? "Pronto!" : "Descansando..."}
+        </p>
+        <p
+          className={`text-xs font-bold tabular-nums ${isFinished ? "text-emerald-400" : "text-violet-400"}`}
+        >
+          {timeLeft}s
+        </p>
+      </div>
+      <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+        <div
+          className={`h-full rounded-full transition-all duration-1000 ${isFinished ? "bg-emerald-500" : "bg-violet-500"}`}
+          style={{ width: `${(1 - progress) * 100}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
+type ExerciseStatus = "idle" | "in_progress" | "active" | "done";
+
+interface ExerciseState {
+  status: ExerciseStatus;
+  seriesDone: number;
+  isResting: boolean;
+  timeLeft: number;
+}
+
 export const WorkoutDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -156,24 +201,133 @@ export const WorkoutDetail = () => {
   const plan = mockPlan;
   const status = statusConfig[plan.status as keyof typeof statusConfig];
 
+  const day = plan.trainingDays[0];
+  const sets = day.workoutSets.sort((a, b) => a.order - b.order);
+
+  const [exerciseStates, setExerciseStates] = useState<
+    Record<string, ExerciseState>
+  >(() =>
+    Object.fromEntries(
+      sets.map((s) => [
+        s.id,
+        {
+          status: "idle",
+          seriesDone: 0,
+          isResting: false,
+          timeLeft: s.restTime,
+        },
+      ]),
+    ),
+  );
+
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const hasResting = Object.values(exerciseStates).some(
+      (state) => state.isResting && state.timeLeft > 0,
+    );
+
+    if (!hasResting) return;
+
+    const timer = setInterval(() => {
+      setExerciseStates((prev) => {
+        const updated = { ...prev };
+        Object.entries(updated).forEach(([id, state]) => {
+          if (state.isResting && state.timeLeft > 0) {
+            updated[id] = { ...state, timeLeft: state.timeLeft - 1 };
+          }
+        });
+        return updated;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [
+    Object.values(exerciseStates).some((s) => s.isResting && s.timeLeft > 0),
+  ]);
+
+  function handleTap(setId: string) {
+    const current = exerciseStates[setId];
+    if (current.status === "done") return;
+
+    if (activeId === setId) {
+      setActiveId(null);
+      setExerciseStates((prev) => ({
+        ...prev,
+        [setId]: {
+          ...prev[setId],
+          status: prev[setId].seriesDone > 0 ? "in_progress" : "idle",
+        },
+      }));
+    } else {
+      if (activeId) {
+        setExerciseStates((prev) => ({
+          ...prev,
+          [activeId]: {
+            ...prev[activeId],
+            status: prev[activeId].seriesDone > 0 ? "in_progress" : "idle",
+          },
+        }));
+      }
+      setActiveId(setId);
+      setExerciseStates((prev) => ({
+        ...prev,
+        [setId]: { ...prev[setId], status: "active" },
+      }));
+    }
+  }
+
+  function handleCompleteSerie(setId: string, totalSeries: number) {
+    setExerciseStates((prev) => {
+      const current = prev[setId];
+      const newSeriesDone = current.seriesDone + 1;
+      const isDone = newSeriesDone >= totalSeries;
+      return {
+        ...prev,
+        [setId]: {
+          ...prev[setId],
+          status: isDone ? "done" : "active",
+          seriesDone: newSeriesDone,
+          isResting: !isDone,
+        },
+      };
+    });
+
+    const current = exerciseStates[setId];
+    if (current.seriesDone + 1 >= totalSeries) {
+      setActiveId(null);
+    }
+  }
+
+  function handleNextSerie(setId: string) {
+    const restTime = sets.find((s) => s.id === setId)!.restTime;
+    setExerciseStates((prev) => ({
+      ...prev,
+      [setId]: { ...prev[setId], isResting: false, timeLeft: restTime },
+    }));
+  }
+
+  const totalDone = Object.values(exerciseStates).filter(
+    (e) => e.status === "done",
+  ).length;
+  const allDone = totalDone === sets.length;
+
   return (
     <div className="min-h-screen bg-[#0d0d0f] px-4 pt-10 pb-6">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-8">
+      <div className="flex items-center gap-3 mb-6">
         <button
           onClick={() => navigate(-1)}
           className="bg-white/5 border border-white/8 p-2 rounded-xl transition-all duration-200 active:scale-95"
         >
           <ArrowLeft size={18} className="text-white/60" />
         </button>
-
         <div className="flex-1 min-w-0">
           <h1 className="text-white text-xl font-bold truncate">{plan.name}</h1>
           <p className="text-white/40 text-xs mt-0.5">
             {plan.trainingDays.length} dias de treino
           </p>
         </div>
-
         <span
           className={`text-xs font-semibold px-3 py-1 rounded-full shrink-0 ${status.classes}`}
         >
@@ -181,95 +335,223 @@ export const WorkoutDetail = () => {
         </span>
       </div>
 
-      {/* Dias de treino */}
-      <Accordion type="single" collapsible className="flex flex-col gap-3">
-        {plan.trainingDays
-          .sort((a, b) => a.order - b.order)
-          .map((day) => (
-            <AccordionItem
-              key={day.id}
-              value={day.id}
-              className="bg-white/5 border border-white/8 rounded-2xl px-5 overflow-hidden"
+      {/* Nome do dia + progresso */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-white font-semibold text-base">{day.name}</h2>
+          <span className="text-white/40 text-xs">
+            {totalDone}/{sets.length}
+          </span>
+        </div>
+        <div className="flex gap-1.5">
+          {sets.map((s) => {
+            const st = exerciseStates[s.id];
+            return (
+              <div
+                key={s.id}
+                className={`h-1 flex-1 rounded-full transition-all duration-500 ${
+                  st.status === "done"
+                    ? "bg-emerald-500"
+                    : st.status === "in_progress"
+                      ? "bg-violet-500/60"
+                      : st.status === "active"
+                        ? "bg-violet-500"
+                        : "bg-white/10"
+                }`}
+              />
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Lista de exercícios */}
+      <div className="flex flex-col gap-3">
+        {sets.map((set) => {
+          const exState = exerciseStates[set.id];
+          const isActive = activeId === set.id;
+          const isDone = exState.status === "done";
+          const isInProgress = exState.status === "in_progress";
+
+          return (
+            <div
+              key={set.id}
+              onClick={() => handleTap(set.id)}
+              className={`rounded-2xl border transition-all duration-200 overflow-hidden cursor-pointer ${
+                isDone
+                  ? "bg-emerald-500/5 border-emerald-500/20"
+                  : isActive
+                    ? "bg-violet-500/10 border-violet-500/30"
+                    : isInProgress
+                      ? "bg-white/5 border-violet-500/30"
+                      : "bg-white/5 border-white/8 active:scale-[0.99]"
+              }`}
             >
-              <AccordionTrigger className="py-4 hover:no-underline data-[spate=open]:text-violet-400 transition-colors duration-200">
-                <div className="flex items-center gap-3">
-                  <div className="bg-white/8 p-1.5 rounded-lg">
-                    <Dumbbell size={14} className="text-white/50" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-white font-semibold text-sm leading-tight">
-                      {day.name}
-                    </p>
-                    <p className="text-white/40 text-xs mt-0.5">
-                      {day.workoutSets.length} exercícios
-                    </p>
-                  </div>
+              {/* Cabeçalho */}
+              <div className="flex items-center gap-3 p-4">
+                <div
+                  className={`p-2 rounded-xl shrink-0 transition-all duration-200 ${
+                    isDone
+                      ? "bg-emerald-500/20"
+                      : isActive
+                        ? "bg-violet-500/20"
+                        : isInProgress
+                          ? "bg-violet-500/10"
+                          : "bg-white/8"
+                  }`}
+                >
+                  {isDone ? (
+                    <Check size={16} className="text-emerald-400" />
+                  ) : (
+                    <Dumbbell
+                      size={16}
+                      className={
+                        isActive || isInProgress
+                          ? "text-violet-400"
+                          : "text-white/40"
+                      }
+                    />
+                  )}
                 </div>
-              </AccordionTrigger>
 
-              <AccordionContent className="pb-4">
-                <div className="flex flex-col gap-3 pt-1">
-                  {/* Lista de exercícios */}
-                  {day.workoutSets
-                    .sort((a, b) => a.order - b.order)
-                    .map((set, index) => (
-                      <div
-                        key={set.id}
-                        className="flex items-center gap-3 bg-white/5 rounded-xl p-3"
-                      >
-                        {/* Número do exercício */}
-                        <span className="text-white/20 text-xs font-bold w-5 text-center shrink-0">
-                          {index + 1}
-                        </span>
-
-                        {/* Info do exercício */}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-white text-sm font-medium truncate">
-                            {set.exercise.name}
-                          </p>
-                          <p className="text-white/40 text-xs mt-0.5">
-                            {set.exercise.muscleGroup}
-                          </p>
-                        </div>
-
-                        {/* Stats */}
-                        <div className="flex items-center gap-4 shrink-0">
-                          <div className="text-center">
-                            <p className="text-white text-sm font-bold">
-                              {set.weight}kg
-                            </p>
-                            <p className="text-white/30 text-[10px]">carga</p>
-                          </div>
-                          <div className="text-center">
-                            <p className="text-white text-sm font-bold">
-                              {set.restTime}
-                            </p>
-                            <p className="text-white/30 text-[10px]">
-                              descanso
-                            </p>
-                          </div>
-                          <div className="text-center">
-                            <p className="text-white text-sm font-bold">
-                              {set.repetitions}
-                            </p>
-                            <p className="text-white/30 text-[10px]">reps</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  {/* Botão iniciar treino */}
-                  <button
-                    onClick={() => navigate(`/training/${day.id}`)}
-                    className="w-full mt-1 bg-violet-600 hover:bg-violet-500 active:bg-violet-700 active:scale-[0.98] text-white font-semibold text-sm py-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2"
+                <div className="flex-1 min-w-0">
+                  <p
+                    className={`font-semibold text-sm leading-tight transition-colors duration-200 ${isDone ? "text-white/40 line-through" : "text-white"}`}
                   >
-                    <Play size={14} />
-                    Iniciar {day.name.split("—")[0].trim()}
-                  </button>
+                    {set.exercise.name}
+                  </p>
+                  <p className="text-white/40 text-xs mt-0.5">
+                    {set.exercise.muscleGroup}
+                  </p>
                 </div>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-      </Accordion>
+
+                <div className="flex items-center gap-3 shrink-0">
+                  {isInProgress && (
+                    <span className="text-violet-400 text-xs font-semibold">
+                      {exState.seriesDone}/{set.sets}
+                    </span>
+                  )}
+                  {!isActive && !isDone && (
+                    <div className="text-right">
+                      <p className="text-white/60 text-xs">
+                        {set.sets}x{set.repetitions}
+                      </p>
+                      <p className="text-white/30 text-[10px]">
+                        {set.weight}kg
+                      </p>
+                    </div>
+                  )}
+                  {!isDone && (
+                    <ChevronDown
+                      size={16}
+                      className={`text-white/20 transition-transform duration-200 ${isActive ? "rotate-180" : ""}`}
+                    />
+                  )}
+                </div>
+              </div>
+
+              {/* Conteúdo expandido */}
+              {isActive && (
+                <div className="px-4 pb-4" onClick={(e) => e.stopPropagation()}>
+                  <div className="grid grid-cols-3 gap-2 mb-4">
+                    <div className="bg-white/5 rounded-xl p-3 text-center">
+                      <p className="text-white font-bold text-lg">
+                        {set.sets}x{set.repetitions}
+                      </p>
+                      <p className="text-white/40 text-[10px] uppercase tracking-widest mt-0.5">
+                        Séries x Reps
+                      </p>
+                    </div>
+                    <div className="bg-white/5 rounded-xl p-3 text-center">
+                      <p className="text-white font-bold text-lg">
+                        {set.weight}kg
+                      </p>
+                      <p className="text-white/40 text-[10px] uppercase tracking-widest mt-0.5">
+                        Carga
+                      </p>
+                    </div>
+                    <div className="bg-white/5 rounded-xl p-3 text-center">
+                      <p className="text-white font-bold text-lg">
+                        {set.restTime}s
+                      </p>
+                      <p className="text-white/40 text-[10px] uppercase tracking-widest mt-0.5">
+                        Descanso
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 mb-4">
+                    {Array.from({ length: set.sets }).map((_, i) => (
+                      <div
+                        key={i}
+                        className={`h-2 flex-1 rounded-full transition-all duration-300 ${
+                          i < exState.seriesDone
+                            ? "bg-emerald-500"
+                            : i === exState.seriesDone
+                              ? "bg-violet-500"
+                              : "bg-white/10"
+                        }`}
+                      />
+                    ))}
+                  </div>
+
+                  {exState.isResting && (
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <RestBar
+                        timeLeft={exState.timeLeft}
+                        restTime={set.restTime}
+                      />
+                      {exState.timeLeft <= 0 ? (
+                        <button
+                          onClick={() => handleNextSerie(set.id)}
+                          className="w-full mt-3 bg-violet-600 hover:bg-violet-500 active:bg-violet-700 active:scale-[0.98] text-white font-semibold text-sm py-3 rounded-xl transition-all duration-200"
+                        >
+                          {`Concluir Série ${exState.seriesDone + 1} de ${set.sets}`}
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleNextSerie(set.id)}
+                          className="w-full mt-3 border border-violet-500/30 text-violet-400 font-semibold text-sm py-3 rounded-xl transition-all duration-200 active:scale-[0.98]"
+                        >
+                          Pular Descanso
+                        </button>
+                      )}
+                    </div>
+                  )}
+
+                  {!exState.isResting && (
+                    <button
+                      onClick={() => handleCompleteSerie(set.id, set.sets)}
+                      className="w-full bg-violet-600 hover:bg-violet-500 active:bg-violet-700 active:scale-[0.98] text-white font-semibold text-sm py-3 rounded-xl transition-all duration-200"
+                    >
+                      {exState.seriesDone === 0
+                        ? "Iniciar Série 1"
+                        : `Concluir Série ${exState.seriesDone + 1} de ${set.sets}`}
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Treino concluído */}
+      {allDone && (
+        <div className="mt-6 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-5 text-center">
+          <p className="text-emerald-400 text-lg font-bold mb-1">
+            🎉 Treino Concluído!
+          </p>
+          <p className="text-white/40 text-sm mb-4">
+            Todos os exercícios foram feitos.
+          </p>
+          <button
+            onClick={() => navigate(-1)}
+            className="w-full bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white font-semibold py-3 rounded-xl transition-all duration-200"
+          >
+            Finalizar
+          </button>
+        </div>
+      )}
     </div>
   );
 };
