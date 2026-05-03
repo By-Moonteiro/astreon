@@ -11,6 +11,7 @@ export const ExerciseSchema = z.object({
 export const WorkoutSetSchema = z.object({
   id: z.string(),
   exercise: ExerciseSchema,
+  sets: z.number(),
   repetitions: z.number(),
   weight: z.number(),
   restTime: z.number(),
