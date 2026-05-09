@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await api.post("/auth/logout");
     } finally {
       setUser(null);
-      navigate("/");
+      navigate("/login");
     }
   }
 
