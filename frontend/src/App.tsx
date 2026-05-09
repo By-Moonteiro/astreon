@@ -7,6 +7,7 @@ import { Workouts } from "./pages/Workouts";
 import { Profile } from "./pages/Profile";
 import { WorkoutDetail } from "./pages/WorkoutDetail";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { PrivateRoute } from "./components/layout/PrivateRoute";
 
 export const App = () => {
   return (
@@ -16,11 +17,13 @@ export const App = () => {
           <Route path="/" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
-          <Route element={<AppLayout />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/workouts" element={<Workouts />} />
-            <Route path="/workouts/:id" element={<WorkoutDetail />} />
-            <Route path="/profile" element={<Profile />} />
+          <Route element={<PrivateRoute />}>
+            <Route element={<AppLayout />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/workouts" element={<Workouts />} />
+              <Route path="/workouts/:id" element={<WorkoutDetail />} />
+              <Route path="/profile" element={<Profile />} />
+            </Route>
           </Route>
         </Routes>
       </AuthProvider>
