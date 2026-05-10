@@ -1,6 +1,9 @@
 import { Plus, Dumbbell, Calendar, ChevronRight, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { WorkoutPlan } from "../schemas/workout";
+import { useState } from "react";
+import type { WorkoutPlanFormData } from "../schemas/workoutForm.schema";
+import { CreateWorkoutSheet } from "../components/workout/CreateWorkoutSheet";
 
 const mockPlans: WorkoutPlan[] = [
   {
@@ -62,6 +65,11 @@ const getDaysUntilExpiry = (endDate: string): number => {
 
 export const Workouts = () => {
   const navigate = useNavigate();
+  const [createOpen, setCreateOpen] = useState(false);
+
+  function handleSave(data: WorkoutPlanFormData) {
+    console.log("Nova ficha:", data);
+  }
 
   return (
     <div className="min-h-screen bg-[#0d0d0f] px-4 pt-10 pb-6 relative">
@@ -132,11 +140,17 @@ export const Workouts = () => {
 
       {/* Botão flutuante */}
       <button
-        onClick={() => console.log("abrir modal de criação")}
+        onClick={() => setCreateOpen(true)}
         className="fixed bottom-24 right-6 bg-violet-600 hover:bg-violet-500 active:bg-violet-700 text-white p-4 rounded-2xl shadow-lg shadow-violet-900/40 transition-all duration-200 active:scale-95"
       >
         <Plus size={22} />
       </button>
+
+      <CreateWorkoutSheet
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        onSave={handleSave}
+      />
     </div>
   );
 };
