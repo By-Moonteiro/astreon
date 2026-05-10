@@ -8,12 +8,14 @@ import { Profile } from "./pages/Profile";
 import { WorkoutDetail } from "./pages/WorkoutDetail";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { PrivateRoute } from "./components/layout/PrivateRoute";
+import { SplashScreen } from "./pages/SplashScreen";
 
 export const App = () => {
   return (
     <BrowserRouter>
       <AuthProvider>
         <Routes>
+          <Route path="/" element={<SplashScreen />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
