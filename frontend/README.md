@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="../docs/assets/logo.svg" alt="MoonFit" width="520"/>
+<img src="../docs/assets/logo.svg" alt="Astreon" width="520"/>
 
-### Interface web do MoonFit
+### Interface web do Astreon
 
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-8-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
@@ -19,7 +19,7 @@
 
 ## 📚 Sobre
 
-Frontend do MoonFit — interface para autenticação e gerenciamento de treinos, consumindo a [API REST do backend](../backend/README.md).
+Frontend do Astreon — interface para autenticação e gerenciamento de treinos, consumindo a [API REST do backend](../backend/README.md).
 
 > Primeiro projeto frontend com integração real a uma API própria.
 
@@ -107,7 +107,7 @@ cp .env.example .env
 pnpm dev
 ```
 
-✅ App disponível em `https://moon-fit.vercel.app/`
+✅ App disponível em `https://www.astreon.app/`
 
 ---
 

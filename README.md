@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="docs/assets/logo.svg" alt="MoonFit" width="520"/>
+<img src="docs/assets/logo.svg" alt="Astreon" width="520"/>
 
-# MoonFit
+# Astreon
 
 ### Plataforma de gerenciamento de treinos
 
@@ -10,12 +10,12 @@
 
 </div>
 
-## 🎯 Por que o MoonFit existe?
+## 🎯 Por que o Astreon existe?
 
 Muitas academias não fornecem fichas estruturadas.
 Alunos acabam registrando treinos em notas soltas, WhatsApp ou memória.
 
-O MoonFit nasce como uma tentativa de resolver esse problema
+O Astreon nasce como uma tentativa de resolver esse problema
 criando um sistema simples, pessoal e reutilizável de organização de treinos.
 
 ## 🧠 Documentação do Projeto
@@ -26,7 +26,7 @@ Esses arquivos descrevem o **problema**, o **fluxo central** e as decisões de a
 | Documento                           | Descrição                           |
 | ----------------------------------- | ----------------------------------- |
 | [Overview](./docs/00-overview.md)   | Visão geral e objetivo do projeto   |
-| [Problem](./docs/01-problem.md)     | Problema real que o MoonFit resolve |
+| [Problem](./docs/01-problem.md)     | Problema real que o Astreon resolve |
 | [Core Flow](./docs/02-core-flow.md) | Fluxo principal do usuário          |
 | [Entities](./docs/03-entities.md)   | Modelagem conceitual do domínio     |
 | [Ideas](./docs/05-ideas.md)         | Ideias futuras e experimentações    |

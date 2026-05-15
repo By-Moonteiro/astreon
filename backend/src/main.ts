@@ -39,8 +39,8 @@ async function bootstrap() {
   });
 
   const config = new DocumentBuilder()
-    .setTitle('MoonFit')
-    .setDescription('Docs for MoonFit Project')
+    .setTitle('Astreon')
+    .setDescription('Docs for Astreon Project')
     .setVersion('1.0')
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },

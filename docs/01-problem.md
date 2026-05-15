@@ -4,7 +4,7 @@
 
 ## De onde veio a ideia
 
-O MoonFit nasceu de uma dor real e diária minha na academia.
+O Astreon nasceu de uma dor real e diária minha na academia.
 
 ## O que eu enfrentava
 

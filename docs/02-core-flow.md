@@ -1,6 +1,6 @@
 [Voltar ao README](../README.md)
 
-# Core Flow — Como o MoonFit funciona
+# Core Flow — Como o Astreon funciona
 
 ## Fluxo 1 — Criando uma ficha de treino
 

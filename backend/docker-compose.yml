@@ -1,6 +1,6 @@
 services:
   db:
-    container_name: moon-fit-nest
+    container_name: astreon-db
     image: postgres:16-alpine
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
