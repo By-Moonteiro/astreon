@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="../docs/assets/logo.svg" alt="MoonFit" width="520"/>
+<img src="../docs/assets/logo.svg" alt="Astreon" width="520"/>
 
 ### API de gerenciamento de treinos — construída para durar
 
@@ -113,8 +113,8 @@ pnpm prisma:migrate
 pnpm start:dev
 ```
 
-✅ API disponível em `https://moon-fit-backend.onrender.com/`  
-✅ Documentação interativa em `https://moon-fit-backend.onrender.com/docs`
+✅ API disponível em `https://api.astreon.app/`  
+✅ Documentação interativa em `https://api.astreon.app/docs`
 
 ---
 
@@ -155,10 +155,10 @@ pnpm start:dev
 # Banco de dados
 DB_USER=postgres
 DB_PASSWORD=sua_senha
-DB_NAME=moonfit
+DB_NAME=astreon
 
 # Prisma
-DATABASE_URL="postgresql://postgres:SUA_SENHA@localhost:5432/moon-fit?schema=public"
+DATABASE_URL="postgresql://postgres:SUA_SENHA@localhost:5432/astreon?schema=public"
 FRONTEND_URL=http://localhost:5173
 
 # JWT
