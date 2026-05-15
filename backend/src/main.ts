@@ -33,14 +33,17 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
 
   app.enableCors({
-    origin: configService.get<string>('FRONTEND_URL'),
+    origin: [
+      configService.get<string>('FRONTEND_URL') ?? 'https://astreon.app',
+      'http://localhost:5173',
+    ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     credentials: true,
   });
 
   const config = new DocumentBuilder()
-    .setTitle('MoonFit')
-    .setDescription('Docs for MoonFit Project')
+    .setTitle('Astreon')
+    .setDescription('Docs for Astreon Project')
     .setVersion('1.0')
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },

@@ -1,10 +1,10 @@
 [Voltar ao README](../README.md)
 
-# MoonFit — Overview
+# Astreon — Overview
 
 ## O que é
 
-MoonFit é um gerenciador de fichas de treino pensado pra ser simples e completo.
+Astreon é um gerenciador de fichas de treino pensado pra ser simples e completo.
 Organiza seus treinos, registra seu progresso e te ajuda a manter o histórico
 do que você fez — sem depender de WhatsApp, bloco de notas ou memória.
 
